@@ -47,6 +47,27 @@ rl.question("Enter file path: ",async function(answer){
   },
   MX08: async(Arguments) => {
     await sleep(parseFloat(Arguments[0]))
+  },
+  MX09: async(Arguments) => {
+    if (fs.existsSync(Arguments[0])){
+      const Result = JSON.parse(fs.readFileSync(Arguments[0]))
+      for (const Key in Result){
+        Variables[Key] = Result[Key]
+      }
+    } else {
+      console.warn("Invalid file path")
+    }
+  },
+  MX0A: async(Arguments) => {
+    let ToWrite = {}
+    if (Arguments[1]){
+      for (const Key of Arguments.split(1)){
+        ToWrite[Key] = Variables[Key]
+      }
+    } else {
+      ToWrite = Variables
+    }
+    fs.writeFileSync(Arguments[0], JSON.stringify(ToWrite))
   }
 };
 for (let i = 0; i < instructions.length; i++) {

@@ -1,0 +1,14 @@
+MX06 TestVar 0
+// This should not execute
+MX06 Test2 3
+MX06 Test3 6
+MX04 TestVar Test2 Test3
+MX08 500
+MX03 TestVar
+MX06 tst3 0
+MX06 tst1 57
+MX06 tst2 7698
+MX08 1000
+MX04 tst3 tst2 tst1
+MX03 tst3
+MX0A persistence.json
