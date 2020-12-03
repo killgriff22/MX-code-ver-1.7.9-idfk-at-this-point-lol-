@@ -1,65 +1,81 @@
 /*
 CREDITS
-@AsyncBanana
-#4612 on discord & his server for helping/optimising the code!
-_____________________
-MX00 - no operation
-MX01 - add 1 to var1
-MX02 - subtrct 1 from var1
-MX03 - log var1 to console
-MX04 - add 1 to var2
-MX05 - subtract 1 from var2
-MX06 - log var2 to console
-MX07 - multiply var1 & 2
-MX08 - divide var1 & 2
-MX09 - log the multiplacation awnser
-MX0A - log the division awser
+@AsyncBanana#4612 on discord & his server for helping/optimising the code!
 */
 const fs = require('fs')
-const instructions = fs.readFileSync('file.MX', 'utf8').split('\n');
-let v1 = 0;
-let v2 = 0;
-let holdingvar1 = 0;
-let holdingvar2 = 0;
-const commands = {
+const readline = require('readline')
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
+rl.question("Enter file path: ",async function(answer){
+  if (!fs.existsSync(answer)){
+    console.warn("Invalid File path")
+    rl.close()
+    return
+  }
+  const instructions = fs.readFileSync(answer, 'utf8').split('\n');
+    let Variables = {}
+  const commands = {
+    ["//"]: ()=>{
+      return
+    },
   MX00: () => {
     return;
   },
-  MX01: (Arguments) => {
-    v1 += parseFloat(Arguments[0])||1;
+  MX01: async(Arguments) => {
+    Variables[Arguments[0]] += parseFloat(Arguments[1])||1;
   },
-  MX02: (Arguments) => {
-    v1 -= parseFloat(Arguments[0])||1;
+  MX02: async(Arguments) => {
+    Variables[Arguments[0]] -= parseFloat(Arguments[1])||1;
   },
-  MX03: (Arguments) => {
-    console.log(v1);
+  MX03: async(Arguments) => {
+    console.log(Variables[Arguments[0]]);
   },
-  MX04: (Arguments) => {
-    v2 += parseFloat(Arguments[0])||1;
+  MX04: async(Arguments) => {
+    Variables[Arguments[0]] = Variables[Arguments[1]] * Variables[Arguments[2]]
   },
-  MX05: (Arguments) => {
-    v2 -= parseFloat(Arguments[0])||1;
+  MX05: async(Arguments) => {
+    Variables[Arguments[0]] = Variables[Arguments[1]] / Variables[Arguments[2]]
   },
-  MX06: (Arguments) => {
-    console.log(v2);
+  MX06: async(Arguments) => {
+    Variables[Arguments[0]] = parseInt(Arguments[1])
   },
-  MX07: (Arguments) => {
-    holdingvar1 = v1 * v2;
+  MX07: async(Arguments) => {
+    Variables[Arguments[0]] = Variables[Arguments[1]]
   },
-  MX08: (Arguments) => {
-    holdingvar2 = v1 / v2;
+  MX08: async(Arguments) => {
+    await sleep(parseFloat(Arguments[0]))
   },
-  MX09: (Arguments) => {
-    console.log(holdingvar1);
+  MX09: async(Arguments) => {
+    if (fs.existsSync(Arguments[0])){
+      const Result = JSON.parse(fs.readFileSync(Arguments[0]))
+      for (const Key in Result){
+        Variables[Key] = Result[Key]
+      }
+    } else {
+      console.warn("Invalid file path")
+    }
   },
-  MX0A: (Arguments) => {
-    console.log(holdingvar2);
-  },
+  MX0A: async(Arguments) => {
+    let ToWrite = {}
+    if (Arguments[1]){
+      for (const Key of Arguments.split(1)){
+        ToWrite[Key] = Variables[Key]
+      }
+    } else {
+      ToWrite = Variables
+    }
+    fs.writeFileSync(Arguments[0], JSON.stringify(ToWrite))
+  }
 };
 for (let i = 0; i < instructions.length; i++) {
   const CommandArray = instructions[i].split(" ")
   if (commands[CommandArray[0]]) {
-    commands[CommandArray[0]](CommandArray.slice(1)||[]);
- } else {if(instructions[i] === 'BEGINING OF MEMORY'||'END OF MEMORY'){}else{
+    await commands[CommandArray[0]](CommandArray.slice(1)||[]);
+ } else {
    console.log("Invalid command",instructions[i])
- }}}
+ }}
+ rl.close()
+})
